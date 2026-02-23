@@ -9,4 +9,11 @@ class Post extends Model
 {
     /** @use HasFactory<\Database\Factories\PostFactory> */
     use HasFactory;
+    protected $casts = [
+        'body' => 'array',
+    ];
+
+    public function users(){
+        return $this->belongsToMany(User::class);
+    }
 }

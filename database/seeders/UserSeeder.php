@@ -2,12 +2,12 @@
 
 namespace Database\Seeders;
 
-use App\Models\Comment;
+use App\Models\User;
 use App\Traits\SkipIfRecordExist;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class CommentSeeder extends Seeder
+class UserSeeder extends Seeder
 {
     use SkipIfRecordExist;
     /**
@@ -15,9 +15,9 @@ class CommentSeeder extends Seeder
      */
     public function run(): void
     {
-        if($this->skipIfRecordExist(Comment::class)){
+        if ($this->skipIfRecordExist(User::class)) {
             return;
         }
-        Comment::factory()->count(50)->create();
+        User::factory()->count(10)->create();
     }
 }
