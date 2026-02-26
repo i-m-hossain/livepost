@@ -26,7 +26,7 @@ class PostSeeder extends Seeder
                 $userIds = User::inRandomOrder()
                     ->take(rand(1, 5))
                     ->pluck('id');
-                $post->users()->attach($userIds);
+                $post->users()->sync($userIds);
             });
     }
 }

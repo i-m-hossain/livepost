@@ -12,9 +12,21 @@ class Post extends Model
     protected $casts = [
         'body' => 'array',
     ];
+
+    public function getTitleToUpperCaseAttribute():string
+    {
+        return strtoupper($this->title);
+    }
+
+    public function setTitleAttribute(string $title):void
+    {
+        $this->attributes['title'] = strtolower($title);
+    }
+
     public function comments(){
         return $this->hasMany(Comment::class, 'post_id', );
     }
+
     public function users(){
         return $this->belongsToMany(
             User::class,
