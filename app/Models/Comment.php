@@ -13,4 +13,13 @@ class Comment extends Model
     protected $casts=[
         'body' => 'array',
     ];
+
+    public function post(){
+        return $this->belongsTo(Post::class, 'post_id');
+
+    }
+
+    public function user(){
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
