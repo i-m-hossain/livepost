@@ -51,10 +51,22 @@ class PostController extends Controller
 
     /**
      * Update the specified resource in storage.
+     * @return JsonResponse
      */
     public function update(UpdatePostRequest $request, Post $post)
     {
-        //
+        $updated = $post->update([
+            'title' => $request->title ?? $post->title,
+            'body' => $request->body ?? $post->body,
+        ]);
+        if(!$updated){
+            return new JsonResponse([
+                'errors' => 'failed to update post'
+            ],400);
+        }
+        return new JsonResponse([
+            'data' => $updated
+        ]);
     }
 
     /**
@@ -62,6 +74,14 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        $deleted = $post->forceDelete();
+        if(!$deleted){
+            return new JsonResponse([
+                'errors' => 'failed to delete post'
+            ], 400);
+        }
+        return new JsonResponse([
+            'data' => $deleted
+        ]);
     }
 }
