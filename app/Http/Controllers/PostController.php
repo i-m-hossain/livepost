@@ -4,54 +4,57 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
+use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Support\Facades\DB;
 
 class PostController extends Controller
 {
     /**
      * Display a listing of the resource.
-     * @return JsonResponse
+     * @return ResourceCollection
      */
     public function index()
     {
-        $posts = Post::query()->get();
-        return new JsonResponse([
-            "data" => $posts
-        ]);
+        $pageSize = $request->page_size ?? 10;
+        $posts = Post::query()->paginate($pageSize);
+        return PostResource::collection($posts);
     }
 
     /**
      * Store a newly created resource in storage.
-     * @return JsonResponse
+     * @return PostResource
      */
     public function store(StorePostRequest $request)
     {
-        $created =  Post::query()->create([
-            'title' => $request->title,
-            'body' => $request->body,
-        ]);
+        $created = DB::transaction(function () use ($request) {
+            $created = Post::query()->create([
+                'title' => $request->title,
+                'body' => $request->body,
+            ]);
 
-        return new JsonResponse([
-           "data" => $created
-        ]);
+            $created->users()->sync($request->user_ids);
+            return $created;
+        });
+
+        return new PostResource($created);
 
     }
 
     /**
      * Display the specified resource.
-     * @return JsonResponse
+     * @return PostResource
      */
     public function show(Post $post)
     {
-        return new JsonResponse([
-            'data' => $post
-        ]);
+        return new PostResource($post);
     }
 
     /**
      * Update the specified resource in storage.
-     * @return JsonResponse
+     * @return JsonResponse | PostResource
      */
     public function update(UpdatePostRequest $request, Post $post)
     {
@@ -64,13 +67,12 @@ class PostController extends Controller
                 'errors' => 'failed to update post'
             ],400);
         }
-        return new JsonResponse([
-            'data' => $updated
-        ]);
+        return new PostResource($post);
     }
 
     /**
      * Remove the specified resource from storage.
+     * @return JsonResponse
      */
     public function destroy(Post $post)
     {
