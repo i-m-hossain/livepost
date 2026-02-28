@@ -6,6 +6,8 @@ use App\Http\Requests\StoreCommentRequest;
 use App\Http\Requests\UpdateCommentRequest;
 use App\Http\Resources\CommentResource;
 use App\Models\Comment;
+use App\Repositories\CommentRepository;
+use App\Repositories\PostRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -27,13 +29,13 @@ class CommentController extends Controller
      * Store a newly created resource in storage.
      * @return CommentResource
      */
-    public function store(StoreCommentRequest $request)
+    public function store(StoreCommentRequest $request, CommentRepository $repository)
     {
-        $created = Comment::create([
-            'body' => $request->body,
-            'post_id' => $request->post_id,
-            'user_id' => $request->user_id,
-        ]);
+        $created =  $repository->create($request->only([
+            'body',
+            'user_id',
+            'post_id'
+        ]));
         return new CommentResource($created);
     }
 
@@ -48,17 +50,13 @@ class CommentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateCommentRequest $request, Comment $comment)
+    public function update(UpdateCommentRequest $request, Comment $comment, CommentRepository $repository)
     {
-       $updated =  $comment->update([
-            'body' => $request->body ?? $comment->body
-        ]);
-
-       if (!$updated) {
-           return new JsonResponse([
-               'errors' => 'Comment could not be updated.',
-           ]);
-       }
+        $repository->update($comment, $request->only([
+            'body',
+            'user_id',
+            'post_id'
+        ]));
         return new CommentResource($comment);
     }
 
@@ -66,14 +64,9 @@ class CommentController extends Controller
      * Remove the specified resource from storage.
      * @return JsonResponse
      */
-    public function destroy(Comment $comment)
+    public function destroy(Comment $comment, CommentRepository $repository)
     {
-        $deleted = $comment->forceDelete();
-        if (!$deleted) {
-            return new JsonResponse([
-                'errors' => 'Comment could not be deleted.',
-            ]);
-        }
+        $deleted = $repository->forceDelete($comment);
         return new JsonResponse([
             'success' => 'Comment has been deleted.',
         ]);
