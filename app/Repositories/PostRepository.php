@@ -22,7 +22,7 @@ class PostRepository extends BaseRepository
                 'title' => data_get($attributes, 'title', 'Untitled'),
                 'body' => data_get($attributes, 'body'),
             ]);
-//            throw_if(!$created, GeneralJsonException::class, 'Failed to create. ');
+           throw_if(!$created, GeneralJsonException::class, 'Failed to create. ');
 //            event(new PostCreated($created));
             if($userIds = data_get($attributes, 'user_ids')){
                 $created->users()->sync($userIds);
