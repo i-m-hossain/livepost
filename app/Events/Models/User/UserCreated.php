@@ -14,7 +14,8 @@ use Illuminate\Queue\SerializesModels;
 class UserCreated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-    protected $user;
+    
+    public $user;
     /**
      * Create a new event instance.
      */
