@@ -4,6 +4,7 @@
 namespace App\Repositories;
 
 
+use phpDocumentor\Reflection\Types\Boolean;
 use App\Events\Models\Post\{PostCreated, PostUpdated, PostDeleted};
 use App\Exceptions\GeneralJsonException;
 use App\Models\Post;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 class PostRepository extends BaseRepository
 {
-    public function create(array $attributes)
+    public function create(array $attributes): Post
     {
         return DB::transaction(function () use ($attributes) {
 
@@ -34,7 +35,7 @@ class PostRepository extends BaseRepository
      * @param array $attributes
      * @return mixed
      */
-    public function update($post, array $attributes)
+    public function update($post, array $attributes): Post
     {
 
         return DB::transaction(function () use($post, $attributes) {
@@ -42,7 +43,7 @@ class PostRepository extends BaseRepository
                 'title' => data_get($attributes, 'title', $post->title),
                 'body' => data_get($attributes, 'body', $post->body),
             ]);
-            
+
 
            throw_if(!$updated, GeneralJsonException::class, 'Failed to update post');
            event(new PostUpdated($post));
@@ -58,13 +59,13 @@ class PostRepository extends BaseRepository
 
     /**
      * @param Post $post
-     * @return mixed
+     * @return bool
      */
-    public function forceDelete($post)
+    public function forceDelete($post):bool
     {
         return DB::transaction(function () use($post) {
             $deleted = $post->forceDelete();
-            
+
            throw_if(!$deleted, GeneralJsonException::class, "cannot delete post.");
 
            event(new PostDeleted($post));
