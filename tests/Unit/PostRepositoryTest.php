@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\GeneralJsonException;
 use App\Repositories\PostRepository;
 use App\Models\Post;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -9,7 +10,6 @@ uses(
     RefreshDatabase::class,
     TestCase::class
 );
-
 
 function payload(array $override = []): array
 {
@@ -49,3 +49,13 @@ test('post can be deleted', function () {
         'id' => $post->id
     ]);
 });
+
+test("delete post throw exception if not found", function () {
+
+    $repository = app(PostRepository::class);
+    $post = Post::factory()->make();
+    $repository->forceDelete($post);
+})->throws(
+    GeneralJsonException::class,
+    "cannot delete post."
+);
